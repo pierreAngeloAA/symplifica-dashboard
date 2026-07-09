@@ -9,6 +9,10 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   namespace :api do
-    resources :employees, only: %i[index create show]
+    resources :employees, only: %i[index create show] do
+      resources :benefits, only: %i[index create]
+    end
+
+    resources :benefits, only: %i[show update destroy]
   end
 end
