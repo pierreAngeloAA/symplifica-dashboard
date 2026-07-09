@@ -24,7 +24,15 @@ onMounted(async () => {
 
 <template>
   <AppLayout>
-    <h1 class="mb-6 text-xl font-semibold text-slate-800">Empleados</h1>
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-xl font-semibold text-slate-800">Empleados</h1>
+      <RouterLink
+        to="/employees/new"
+        class="rounded-md bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+      >
+        Nuevo empleado
+      </RouterLink>
+    </div>
 
     <p v-if="loading" class="text-sm text-slate-500">Cargando...</p>
     <p v-else-if="error" class="text-sm text-red-600">{{ error }}</p>

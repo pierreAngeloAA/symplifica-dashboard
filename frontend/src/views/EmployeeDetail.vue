@@ -9,6 +9,9 @@ const employee = ref(null)
 const loading = ref(true)
 const error = ref('')
 
+const newBenefit = ref({ nombre_beneficio: '', monto: '' })
+const benefitError = ref('')
+
 onMounted(async () => {
   try {
     const response = await api.get(`/employees/${route.params.id}`)
@@ -19,6 +22,18 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+async function addBenefit() {
+  benefitError.value = ''
+
+  try {
+    const response = await api.post(`/employees/${route.params.id}/benefits`, { benefit: newBenefit.value })
+    employee.value.benefits.push(response.data)
+    newBenefit.value = { nombre_beneficio: '', monto: '' }
+  } catch (err) {
+    benefitError.value = err.response?.data?.errors?.join(', ') ?? 'No se pudo agregar el beneficio'
+  }
+}
 </script>
 
 <template>
@@ -52,6 +67,31 @@ onMounted(async () => {
               <span class="font-medium text-slate-800">${{ benefit.monto }}</span>
             </li>
           </ul>
+
+          <form class="mt-4 flex gap-2" @submit.prevent="addBenefit">
+            <input
+              v-model="newBenefit.nombre_beneficio"
+              placeholder="Beneficio"
+              required
+              class="w-1/2 rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none"
+            />
+            <input
+              v-model="newBenefit.monto"
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="Monto"
+              required
+              class="w-1/3 rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none"
+            />
+            <button
+              type="submit"
+              class="rounded-md bg-slate-800 px-3 text-sm font-medium text-white hover:bg-slate-700"
+            >
+              +
+            </button>
+          </form>
+          <p v-if="benefitError" class="mt-2 text-xs text-red-600">{{ benefitError }}</p>
         </section>
 
         <section class="rounded-lg bg-white p-5 shadow-sm">
