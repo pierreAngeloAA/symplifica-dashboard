@@ -1,0 +1,53 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import api from '../services/api'
+import AppLayout from '../components/AppLayout.vue'
+
+const employees = ref([])
+const loading = ref(true)
+const error = ref('')
+
+onMounted(async () => {
+  try {
+    const response = await api.get('/employees')
+    employees.value = response.data
+  } catch {
+    error.value = 'No se pudo cargar la lista de empleados'
+  } finally {
+    loading.value = false
+  }
+})
+</script>
+
+<template>
+  <AppLayout>
+    <h1 class="mb-6 text-xl font-semibold text-slate-800">Empleados</h1>
+
+    <p v-if="loading" class="text-sm text-slate-500">Cargando...</p>
+    <p v-else-if="error" class="text-sm text-red-600">{{ error }}</p>
+    <p v-else-if="employees.length === 0" class="text-sm text-slate-500">No hay empleados registrados.</p>
+
+    <table v-else class="w-full overflow-hidden rounded-lg bg-white text-left text-sm shadow-sm">
+      <thead class="bg-slate-100 text-slate-600">
+        <tr>
+          <th class="px-4 py-3 font-medium">Nombre</th>
+          <th class="px-4 py-3 font-medium">Cargo</th>
+          <th class="px-4 py-3 font-medium">Ciudad</th>
+          <th class="px-4 py-3 font-medium">Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="employee in employees"
+          :key="employee.id"
+          class="border-t border-slate-100"
+        >
+          <td class="px-4 py-3">{{ employee.nombre }} {{ employee.apellido }}</td>
+          <td class="px-4 py-3">{{ employee.cargo }}</td>
+          <td class="px-4 py-3">{{ employee.ciudad }}</td>
+          <td class="px-4 py-3">{{ employee.email }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </AppLayout>
+</template>
