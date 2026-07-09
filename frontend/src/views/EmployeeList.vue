@@ -1,7 +1,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '../services/api'
 import AppLayout from '../components/AppLayout.vue'
+
+const router = useRouter()
 
 const employees = ref([])
 const loading = ref(true)
@@ -40,7 +43,8 @@ onMounted(async () => {
         <tr
           v-for="employee in employees"
           :key="employee.id"
-          class="border-t border-slate-100"
+          class="cursor-pointer border-t border-slate-100 hover:bg-slate-50"
+          @click="router.push(`/employees/${employee.id}`)"
         >
           <td class="px-4 py-3">{{ employee.nombre }} {{ employee.apellido }}</td>
           <td class="px-4 py-3">{{ employee.cargo }}</td>
