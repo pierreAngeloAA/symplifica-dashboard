@@ -11,7 +11,7 @@ Rails.application.routes.draw do
   namespace :api do
     post "login", to: "auth#create"
 
-    resources :employees, only: %i[index create show] do
+    resources :employees, only: %i[index create show destroy] do
       resources :benefits, only: %i[index create]
     end
 

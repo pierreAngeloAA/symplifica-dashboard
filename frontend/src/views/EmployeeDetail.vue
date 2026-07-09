@@ -34,6 +34,17 @@ async function addBenefit() {
     benefitError.value = err.response?.data?.errors?.join(', ') ?? 'No se pudo agregar el beneficio'
   }
 }
+
+async function deleteBenefit(id) {
+  if (!confirm('¿Eliminar este beneficio?')) return
+
+  try {
+    await api.delete(`/benefits/${id}`)
+    employee.value.benefits = employee.value.benefits.filter((benefit) => benefit.id !== id)
+  } catch {
+    alert('No se pudo eliminar el beneficio')
+  }
+}
 </script>
 
 <template>
@@ -61,10 +72,19 @@ async function addBenefit() {
             <li
               v-for="benefit in employee.benefits"
               :key="benefit.id"
-              class="flex justify-between text-sm"
+              class="flex items-center justify-between text-sm"
             >
               <span class="text-slate-600">{{ benefit.nombre_beneficio }}</span>
-              <span class="font-medium text-slate-800">${{ benefit.monto }}</span>
+              <span class="flex items-center gap-2">
+                <span class="font-medium text-slate-800">${{ benefit.monto }}</span>
+                <button
+                  class="flex h-5 w-5 items-center justify-center rounded text-base leading-none text-slate-400 hover:text-red-600"
+                  title="Eliminar beneficio"
+                  @click="deleteBenefit(benefit.id)"
+                >
+                  &times;
+                </button>
+              </span>
             </li>
           </ul>
 

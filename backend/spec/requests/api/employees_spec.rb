@@ -62,4 +62,17 @@ RSpec.describe "Api::Employees", type: :request do
       expect(response).to have_http_status(:not_found)
     end
   end
+
+  describe "DELETE /api/employees/:id" do
+    it "elimina el empleado y sus beneficios" do
+      employee = create(:employee)
+      create(:benefit, employee: employee)
+
+      delete "/api/employees/#{employee.id}", headers: headers
+
+      expect(response).to have_http_status(:no_content)
+      expect(Employee.exists?(employee.id)).to be false
+      expect(Benefit.where(employee_id: employee.id)).to be_empty
+    end
+  end
 end
