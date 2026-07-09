@@ -19,6 +19,16 @@ class Api::EmployeesController < ApplicationController
     render json: employee_detail_json(employee)
   end
 
+  def update
+    employee = Employee.find(params[:id])
+
+    if employee.update(employee_params)
+      render json: employee_json(employee)
+    else
+      render json: { errors: employee.errors.full_messages }, status: :unprocessable_content
+    end
+  end
+
   def destroy
     employee = Employee.find(params[:id])
     employee.destroy

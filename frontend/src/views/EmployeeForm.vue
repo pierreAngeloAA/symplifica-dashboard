@@ -1,24 +1,40 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import api from '../services/api'
 import AppLayout from '../components/AppLayout.vue'
 
+const route = useRoute()
 const router = useRouter()
+
+const employeeId = route.params.id
+const isEditing = computed(() => !!employeeId)
 
 const form = ref({ nombre: '', apellido: '', email: '', cargo: '', ciudad: '' })
 const errors = ref([])
 const loading = ref(false)
+
+onMounted(async () => {
+  if (!isEditing.value) return
+
+  const response = await api.get(`/employees/${employeeId}`)
+  const { nombre, apellido, email, cargo, ciudad } = response.data
+  form.value = { nombre, apellido, email, cargo, ciudad }
+})
 
 async function handleSubmit() {
   errors.value = []
   loading.value = true
 
   try {
-    const response = await api.post('/employees', { employee: form.value })
+    const response = isEditing.value
+      ? await api.put(`/employees/${employeeId}`, { employee: form.value })
+      : await api.post('/employees', { employee: form.value })
+
     router.push(`/employees/${response.data.id}`)
   } catch (err) {
-    errors.value = err.response?.data?.errors ?? ['No se pudo crear el empleado']
+    const message = isEditing.value ? 'No se pudo actualizar el empleado' : 'No se pudo crear el empleado'
+    errors.value = err.response?.data?.errors ?? [message]
   } finally {
     loading.value = false
   }
@@ -31,7 +47,9 @@ async function handleSubmit() {
       &larr; Volver al listado
     </RouterLink>
 
-    <h1 class="mb-6 text-xl font-semibold text-slate-800">Nuevo empleado</h1>
+    <h1 class="mb-6 text-xl font-semibold text-slate-800">
+      {{ isEditing ? 'Editar empleado' : 'Nuevo empleado' }}
+    </h1>
 
     <form class="max-w-md space-y-4 rounded-lg bg-white p-6 shadow-sm" @submit.prevent="handleSubmit">
       <div>
@@ -92,7 +110,7 @@ async function handleSubmit() {
         :disabled="loading"
         class="w-full rounded-md bg-slate-800 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
       >
-        {{ loading ? 'Guardando...' : 'Crear empleado' }}
+        {{ loading ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear empleado' }}
       </button>
     </form>
   </AppLayout>

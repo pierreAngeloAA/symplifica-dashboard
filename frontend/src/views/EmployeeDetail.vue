@@ -12,6 +12,9 @@ const error = ref('')
 const newBenefit = ref({ nombre_beneficio: '', monto: '' })
 const benefitError = ref('')
 
+const editingBenefitId = ref(null)
+const editForm = ref({ nombre_beneficio: '', monto: '' })
+
 onMounted(async () => {
   try {
     const response = await api.get(`/employees/${route.params.id}`)
@@ -45,6 +48,26 @@ async function deleteBenefit(id) {
     alert('No se pudo eliminar el beneficio')
   }
 }
+
+function startEditBenefit(benefit) {
+  editingBenefitId.value = benefit.id
+  editForm.value = { nombre_beneficio: benefit.nombre_beneficio, monto: benefit.monto }
+}
+
+function cancelEditBenefit() {
+  editingBenefitId.value = null
+}
+
+async function saveBenefit(id) {
+  try {
+    const response = await api.put(`/benefits/${id}`, { benefit: editForm.value })
+    const index = employee.value.benefits.findIndex((benefit) => benefit.id === id)
+    employee.value.benefits[index] = response.data
+    editingBenefitId.value = null
+  } catch {
+    alert('No se pudo actualizar el beneficio')
+  }
+}
 </script>
 
 <template>
@@ -69,22 +92,49 @@ async function deleteBenefit(id) {
             Sin beneficios asignados.
           </p>
           <ul v-else class="space-y-2">
-            <li
-              v-for="benefit in employee.benefits"
-              :key="benefit.id"
-              class="flex items-center justify-between text-sm"
-            >
-              <span class="text-slate-600">{{ benefit.nombre_beneficio }}</span>
-              <span class="flex items-center gap-2">
-                <span class="font-medium text-slate-800">${{ benefit.monto }}</span>
+            <li v-for="benefit in employee.benefits" :key="benefit.id" class="text-sm">
+              <div v-if="editingBenefitId === benefit.id" class="flex gap-2">
+                <input
+                  v-model="editForm.nombre_beneficio"
+                  class="w-1/2 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none"
+                />
+                <input
+                  v-model="editForm.monto"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="w-1/4 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none"
+                />
                 <button
-                  class="flex h-5 w-5 items-center justify-center rounded text-base leading-none text-slate-400 hover:text-red-600"
-                  title="Eliminar beneficio"
-                  @click="deleteBenefit(benefit.id)"
+                  class="text-xs font-medium text-slate-800 hover:underline"
+                  @click="saveBenefit(benefit.id)"
                 >
-                  &times;
+                  Guardar
                 </button>
-              </span>
+                <button class="text-xs text-slate-500 hover:underline" @click="cancelEditBenefit">
+                  Cancelar
+                </button>
+              </div>
+              <div v-else class="flex items-center justify-between">
+                <span class="text-slate-600">{{ benefit.nombre_beneficio }}</span>
+                <span class="flex items-center gap-2">
+                  <span class="font-medium text-slate-800">${{ benefit.monto }}</span>
+                  <button
+                    class="flex h-5 w-5 items-center justify-center rounded text-sm leading-none text-slate-400 hover:text-slate-600"
+                    title="Editar beneficio"
+                    @click="startEditBenefit(benefit)"
+                  >
+                    &#9998;
+                  </button>
+                  <button
+                    class="flex h-5 w-5 items-center justify-center rounded text-base leading-none text-slate-400 hover:text-red-600"
+                    title="Eliminar beneficio"
+                    @click="deleteBenefit(benefit.id)"
+                  >
+                    &times;
+                  </button>
+                </span>
+              </div>
             </li>
           </ul>
 

@@ -10,6 +10,7 @@ const router = createRouter({
   routes: [
     { path: '/', name: 'home', component: EmployeeList, meta: { requiresAuth: true } },
     { path: '/employees/new', name: 'employee-new', component: EmployeeForm, meta: { requiresAuth: true } },
+    { path: '/employees/:id/edit', name: 'employee-edit', component: EmployeeForm, meta: { requiresAuth: true } },
     { path: '/employees/:id', name: 'employee-detail', component: EmployeeDetail, meta: { requiresAuth: true } },
     { path: '/login', name: 'login', component: Login },
   ],

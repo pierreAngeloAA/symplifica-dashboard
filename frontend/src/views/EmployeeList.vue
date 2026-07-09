@@ -96,6 +96,12 @@ async function deleteEmployee(id) {
                 v-if="openMenuId === employee.id"
                 class="absolute right-0 z-10 mt-1 w-32 rounded-md border border-slate-200 bg-white py-1 shadow-lg"
               >
+                <RouterLink
+                  :to="`/employees/${employee.id}/edit`"
+                  class="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50"
+                >
+                  Editar
+                </RouterLink>
                 <button
                   class="block w-full px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50"
                   @click="deleteEmployee(employee.id)"

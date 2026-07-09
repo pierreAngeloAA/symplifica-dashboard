@@ -63,6 +63,25 @@ RSpec.describe "Api::Employees", type: :request do
     end
   end
 
+  describe "PUT /api/employees/:id" do
+    it "actualiza el empleado" do
+      employee = create(:employee, cargo: "Junior")
+
+      put "/api/employees/#{employee.id}", params: { employee: { cargo: "Senior" } }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(employee.reload.cargo).to eq("Senior")
+    end
+
+    it "rechaza una actualizacion invalida" do
+      employee = create(:employee)
+
+      put "/api/employees/#{employee.id}", params: { employee: { ciudad: "" } }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+  end
+
   describe "DELETE /api/employees/:id" do
     it "elimina el empleado y sus beneficios" do
       employee = create(:employee)
