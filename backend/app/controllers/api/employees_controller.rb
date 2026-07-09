@@ -30,8 +30,11 @@ class Api::EmployeesController < ApplicationController
   end
 
   def employee_detail_json(employee)
+    coordenadas = NominatimClient.new.search_city(employee.ciudad)
+
     employee_json(employee).merge(
-      benefits: employee.benefits.as_json(only: %i[id nombre_beneficio monto])
+      benefits: employee.benefits.as_json(only: %i[id nombre_beneficio monto]),
+      coordenadas: coordenadas
     )
   end
 end
