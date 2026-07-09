@@ -12,7 +12,7 @@ class Api::BenefitsController < ApplicationController
     if benefit.save
       render json: benefit_json(benefit), status: :created
     else
-      render json: { errors: benefit.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: benefit.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -24,7 +24,7 @@ class Api::BenefitsController < ApplicationController
     if @benefit.update(benefit_params)
       render json: benefit_json(@benefit)
     else
-      render json: { errors: @benefit.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @benefit.errors.full_messages }, status: :unprocessable_content
     end
   end
 
