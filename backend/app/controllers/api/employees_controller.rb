@@ -38,11 +38,11 @@ class Api::EmployeesController < ApplicationController
   private
 
   def employee_params
-    params.require(:employee).permit(:nombre, :apellido, :email, :cargo, :ciudad)
+    params.require(:employee).permit(:nombre, :apellido, :email, :cargo, :ciudad, :phone)
   end
 
   def employee_json(employee)
-    employee.as_json(only: %i[id nombre apellido email cargo ciudad])
+    employee.as_json(only: %i[id nombre apellido email cargo ciudad phone])
   end
 
   def employee_detail_json(employee)

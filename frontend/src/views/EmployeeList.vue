@@ -69,6 +69,7 @@ async function deleteEmployee(id) {
           <th class="px-4 py-3 font-medium">Cargo</th>
           <th class="px-4 py-3 font-medium">Ciudad</th>
           <th class="px-4 py-3 font-medium">Email</th>
+          <th class="px-4 py-3 font-medium">Teléfono</th>
           <th class="px-4 py-3 font-medium">Acciones</th>
         </tr>
       </thead>
@@ -83,6 +84,7 @@ async function deleteEmployee(id) {
           <td class="px-4 py-3">{{ employee.cargo }}</td>
           <td class="px-4 py-3">{{ employee.ciudad }}</td>
           <td class="px-4 py-3">{{ employee.email }}</td>
+          <td class="px-4 py-3">{{ employee.phone }}</td>
           <td class="px-4 py-3 text-right" @click.stop>
             <div class="relative inline-block">
               <button

@@ -10,7 +10,7 @@ const router = useRouter()
 const employeeId = route.params.id
 const isEditing = computed(() => !!employeeId)
 
-const form = ref({ nombre: '', apellido: '', email: '', cargo: '', ciudad: '' })
+const form = ref({ nombre: '', apellido: '', email: '', cargo: '', ciudad: '', phone: '' })
 const errors = ref([])
 const loading = ref(false)
 
@@ -18,8 +18,8 @@ onMounted(async () => {
   if (!isEditing.value) return
 
   const response = await api.get(`/employees/${employeeId}`)
-  const { nombre, apellido, email, cargo, ciudad } = response.data
-  form.value = { nombre, apellido, email, cargo, ciudad }
+  const { nombre, apellido, email, cargo, ciudad, phone } = response.data
+  form.value = { nombre, apellido, email, cargo, ciudad, phone }
 })
 
 async function handleSubmit() {
@@ -97,6 +97,15 @@ async function handleSubmit() {
           id="ciudad"
           v-model="form.ciudad"
           required
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+        />
+      </div>
+      
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-600" for="phone">Teléfono</label>
+        <input
+          id="phone"
+          v-model="form.phone"
           class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
         />
       </div>
