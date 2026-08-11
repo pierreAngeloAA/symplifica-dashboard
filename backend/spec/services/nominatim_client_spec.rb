@@ -4,7 +4,7 @@ RSpec.describe NominatimClient do
   describe "#search_city" do
     it "devuelve coordenadas cuando hay resultado" do
       stub_request(:get, /nominatim.openstreetmap.org/)
-        .to_return(status: 200, body: [{ lat: "4.65", lon: "-74.08" }].to_json)
+        .to_return(status: 200, body: [ { lat: "4.65", lon: "-74.08" } ].to_json)
 
       result = described_class.new.search_city("Bogota")
 
