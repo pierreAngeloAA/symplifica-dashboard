@@ -1,19 +1,28 @@
 # Symplifica - Dashboard de Empleados y Beneficios
 
+[![CI](https://github.com/pierreAngeloAA/symplifica-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/pierreAngeloAA/symplifica-dashboard/actions/workflows/ci.yml)
+![Ruby](https://img.shields.io/badge/Ruby-3.3.5-CC342D?logo=ruby&logoColor=white)
+![Rails](https://img.shields.io/badge/Rails-8.1-D30001?logo=rubyonrails&logoColor=white)
+![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+
 Prueba técnica Fullstack Junior para Symplifica: un dashboard que unifica la gestión de
 empleados, la gestión de beneficios y datos externos de geolocalización (OpenStreetMap
 Nominatim), consumidos desde un frontend en VueJS.
 
+Se levanta completo con un solo comando (`docker-compose up --build`) y trae 48 tests
+automatizados: 32 de RSpec en el backend y 16 de Vitest en el frontend.
+
 ## Arquitectura
 
 ```
-pruebaSymplifica/
+symplifica-dashboard/
 ├── backend/    Rails API (empleados, beneficios, integración con Nominatim, auth JWT)
 ├── frontend/   Vue 3 + Vite (dashboard)
 └── docker-compose.yml
 ```
 
-- **Backend**: Ruby on Rails 7.2, API-only. PostgreSQL como base de datos.
+- **Backend**: Ruby on Rails 8.1, API-only. PostgreSQL como base de datos.
 - **Frontend**: Vue 3 + Vite, Vue Router, Pinia (estado de auth), Axios, Tailwind CSS.
 - **Autenticación**: JWT (implementación manual con `bcrypt` + gema `jwt`, sin Devise).
 - **API externa**: OpenStreetMap Nominatim — se consulta la ciudad del empleado para obtener
@@ -25,7 +34,7 @@ reto), ya que la prueba permite elegir un solo lenguaje de backend.
 
 ## Requisitos previos
 
-- Ruby 3.3.5 y Rails 7.2
+- Ruby 3.3.5 y Rails 8.1
 - Node 22+
 - PostgreSQL 16 (si se corre sin Docker)
 - Docker y Docker Compose (opcional, para levantar todo con un solo comando)
@@ -107,22 +116,54 @@ Todos los endpoints (excepto `/api/login`) requieren el header `Authorization: B
 | GET    | `/api/employees`                          | Lista todos los empleados                          |
 | POST   | `/api/employees`                          | Crea un empleado                                   |
 | GET    | `/api/employees/:id`                      | Detalle de un empleado: beneficios + coordenadas de Nominatim |
+| PUT    | `/api/employees/:id`                      | Actualiza un empleado                              |
+| DELETE | `/api/employees/:id`                      | Elimina un empleado                                |
 | GET    | `/api/employees/:employee_id/benefits`    | Lista los beneficios de un empleado                |
 | POST   | `/api/employees/:employee_id/benefits`    | Crea un beneficio para un empleado                 |
 | GET    | `/api/benefits/:id`                       | Detalle de un beneficio                            |
 | PUT    | `/api/benefits/:id`                       | Actualiza un beneficio                             |
 | DELETE | `/api/benefits/:id`                       | Elimina un beneficio                               |
 
+### Campos
+
+Un **empleado** tiene `nombre`, `apellido`, `email`, `cargo`, `ciudad` y `phone` (opcional).
+Un **beneficio** tiene `nombre_beneficio` y `monto`, y pertenece a un empleado.
+
+```bash
+# Login
+curl -X POST http://localhost:3000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@symplifica.com","password":"symplifica2026"}'
+# => {"token":"eyJhbGciOiJIUzI1NiJ9..."}
+
+# Detalle de empleado, con beneficios y coordenadas resueltas por Nominatim
+curl http://localhost:3000/api/employees/1 -H "Authorization: Bearer $TOKEN"
+# => {"id":1,"nombre":"Ana","apellido":"Gomez","email":"ana@symplifica.com",
+#     "cargo":"Backend Developer","ciudad":"Bogota","phone":null,
+#     "benefits":[{"id":1,"nombre_beneficio":"Seguro medico","monto":"150.0"}],
+#     "coordenadas":{"latitud":4.6533817,"longitud":-74.0836331}}
+```
+
+Sin el header `Authorization`, la API responde `401`. El frontend detecta ese `401` en un
+interceptor de Axios, limpia la sesión y devuelve al login (el JWT expira a las 24 h).
+
 ## Tests
 
 ```bash
-cd backend
-bundle exec rspec
+cd backend && bundle exec rspec     # 32 ejemplos
+cd frontend && npm test             # 16 ejemplos
 ```
 
-Cubre modelos (`Employee`, `Benefit`, `User`), el servicio `NominatimClient` y los endpoints de
-la API (incluyendo autenticación). Las llamadas a Nominatim están mockeadas con WebMock — los
-tests nunca hacen peticiones reales a la API externa.
+**Backend (RSpec):** modelos (`Employee`, `Benefit`, `User`), el servicio `NominatimClient` y
+los endpoints de la API, incluyendo autenticación. Las llamadas a Nominatim están mockeadas con
+WebMock — los tests nunca hacen peticiones reales a la API externa.
+
+**Frontend (Vitest):** el store de auth (login, logout y rehidratación desde `localStorage`),
+los dos interceptores de Axios (inyección del `Bearer` y manejo del `401`) y el guard del
+router. El cliente de Axios se prueba sustituyendo su `adapter`, de modo que los interceptores
+reales quedan en la ruta de ejecución en vez de mockearse.
+
+Ambas suites, más RuboCop y Brakeman, corren en GitHub Actions (`.github/workflows/ci.yml`).
 
 ## Decisiones técnicas
 
@@ -137,6 +178,11 @@ tests nunca hacen peticiones reales a la API externa.
 - **Rutas de beneficios semi-anidadas**: `index`/`create` viven bajo `/employees/:employee_id/benefits`
   (se necesita saber de quién es el beneficio al crearlo); `show`/`update`/`destroy` viven en
   `/benefits/:id` (ya identifican el recurso por su propio id).
+- **El manejo del `401` se registra desde `main.js`, no se importa el router en `api.js`**: el
+  interceptor necesita cerrar la sesión y redirigir, pero importar el router dentro del cliente
+  HTTP crearía el ciclo `api → router → store → api`. En su lugar `api.js` expone
+  `setUnauthorizedHandler()` y `main.js` inyecta el comportamiento al arrancar la app, que
+  además deja el interceptor testeable sin montar el router.
 
 ## Limitaciones conocidas
 

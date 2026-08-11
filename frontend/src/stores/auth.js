@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import api from '../services/api'
+import api, { TOKEN_KEY } from '../services/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    token: localStorage.getItem('symplifica_token'),
+    token: localStorage.getItem(TOKEN_KEY),
   }),
 
   getters: {
@@ -14,12 +14,12 @@ export const useAuthStore = defineStore('auth', {
     async login(email, password) {
       const response = await api.post('/login', { email, password })
       this.token = response.data.token
-      localStorage.setItem('symplifica_token', this.token)
+      localStorage.setItem(TOKEN_KEY, this.token)
     },
 
     logout() {
       this.token = null
-      localStorage.removeItem('symplifica_token')
+      localStorage.removeItem(TOKEN_KEY)
     },
   },
 })

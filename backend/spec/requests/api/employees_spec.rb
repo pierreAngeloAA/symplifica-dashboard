@@ -45,7 +45,7 @@ RSpec.describe "Api::Employees", type: :request do
       stub_request(:get, /nominatim.openstreetmap.org/)
         .to_return(
           status: 200,
-          body: [{ lat: "4.65", lon: "-74.08" }].to_json,
+          body: [ { lat: "4.65", lon: "-74.08" } ].to_json,
           headers: { "Content-Type" => "application/json" }
         )
 
