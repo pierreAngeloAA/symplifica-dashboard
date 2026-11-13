@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../services/api'
 import AppLayout from '../components/AppLayout.vue'
+import { benefitsTotal, formatMoney, mapUrl } from '../utils/format'
 
 const route = useRoute()
 const employee = ref(null)
@@ -83,7 +84,9 @@ async function saveBenefit(id) {
       <h1 class="mb-1 text-xl font-semibold text-slate-800">
         {{ employee.nombre }} {{ employee.apellido }}
       </h1>
-      <p class="mb-6 text-sm text-slate-500">{{ employee.cargo }} &middot; {{ employee.email }}</p>
+      <p class="mb-6 text-sm text-slate-500">
+        {{ [employee.cargo, employee.email, employee.phone].filter(Boolean).join(' · ') }}
+      </p>
 
       <div class="grid gap-6 sm:grid-cols-2">
         <section class="rounded-lg bg-white p-5 shadow-sm">
@@ -118,7 +121,7 @@ async function saveBenefit(id) {
               <div v-else class="flex items-center justify-between">
                 <span class="text-slate-600">{{ benefit.nombre_beneficio }}</span>
                 <span class="flex items-center gap-2">
-                  <span class="font-medium text-slate-800">${{ benefit.monto }}</span>
+                  <span class="font-medium tabular-nums text-slate-800">{{ formatMoney(benefit.monto) }}</span>
                   <button
                     class="flex h-5 w-5 items-center justify-center rounded text-sm leading-none text-slate-400 hover:text-slate-600"
                     title="Editar beneficio"
@@ -135,6 +138,10 @@ async function saveBenefit(id) {
                   </button>
                 </span>
               </div>
+            </li>
+            <li class="flex justify-between border-t border-slate-100 pt-2 text-sm font-semibold text-slate-800">
+              <span>Total</span>
+              <span class="tabular-nums mr-14">{{ formatMoney(benefitsTotal(employee.benefits)) }}</span>
             </li>
           </ul>
 
@@ -179,6 +186,15 @@ async function saveBenefit(id) {
               <dd class="text-slate-800">{{ employee.coordenadas.longitud }}</dd>
             </div>
           </dl>
+          <a
+            v-if="employee.coordenadas"
+            :href="mapUrl(employee.coordenadas)"
+            target="_blank"
+            rel="noopener"
+            class="mt-4 inline-block text-sm font-medium text-slate-700 hover:underline"
+          >
+            Open in OpenStreetMap &rarr;
+          </a>
         </section>
       </div>
     </template>
