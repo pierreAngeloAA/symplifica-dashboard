@@ -10,8 +10,18 @@ Prueba técnica Fullstack Junior para Symplifica: un dashboard que unifica la ge
 empleados, la gestión de beneficios y datos externos de geolocalización (OpenStreetMap
 Nominatim), consumidos desde un frontend en VueJS.
 
-Se levanta completo con un solo comando (`docker-compose up --build`) y trae 48 tests
-automatizados: 32 de RSpec en el backend y 16 de Vitest en el frontend.
+Se levanta completo con un solo comando (`docker-compose up --build`) y trae 53 tests
+automatizados: 32 de RSpec en el backend y 21 de Vitest en el frontend.
+
+## Screenshots
+
+| Employees | Employee detail |
+|---|---|
+| ![Employees](docs/screenshots/employees.webp) | ![Employee detail](docs/screenshots/employee-detail.webp) |
+
+<img src="docs/screenshots/employees-mobile.webp" alt="Employees on mobile" width="260">
+
+Demo login (from `db/seeds.rb`): `admin@symplifica.com` / `symplifica2026`.
 
 ## Arquitectura
 
