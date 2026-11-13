@@ -8,7 +8,7 @@ on:
 jobs:
   backend-test:
     name: RSpec
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # ubuntu-latest (26.04) has no prebuilt Ruby 3.3.5
 
     services:
       postgres:
@@ -56,7 +56,7 @@ jobs:
 
   backend-lint:
     name: RuboCop
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # ubuntu-latest (26.04) has no prebuilt Ruby 3.3.5
 
     defaults:
       run:
@@ -78,7 +78,7 @@ jobs:
 
   backend-security:
     name: Brakeman
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # ubuntu-latest (26.04) has no prebuilt Ruby 3.3.5
 
     defaults:
       run:
